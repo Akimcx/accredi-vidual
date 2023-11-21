@@ -1,0 +1,110 @@
+<!-- Filter Icon -->
+<div x-data="{open: false}">
+  <div x-show="open">dede</div>
+</div>
+
+<style>
+  svg {
+    margin: 0;
+    cursor: pointer;
+    padding: 0.5rem;
+    width: 16px;
+    height: 16px;
+  }
+
+  svg:hover {
+    background-color: var(--gray-700);
+    border-radius: 5px;
+  }
+
+  div[x-show] {
+    position: absolute;
+  }
+</style>
+
+<div id="toolbar">
+  <!-- Filter Icon -->
+  <div x-data="dropdown">
+    <svg
+      x-bind="trigger"
+      xmlns="http://www.w3.org/2000/svg"
+      height="1em"
+      viewBox="0 0 512 512"
+    >
+      <path
+        d="M3.9 54.9C10.5 40.9 24.5 32 40 32H472c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9V448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6V320.9L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z"
+      ></path></svg
+    >
+    <div x-bind="dialog" class="menu">
+      <p>Aucune condition appliquée</p>
+    </div>
+  </div>
+  <!-- Sort Icon -->
+  <div x-data="dropdown">
+    <svg
+      x-bind="trigger"
+      xmlns="http://www.w3.org/2000/svg"
+      height="1em"
+      viewBox="0 0 320 512"
+      class={sortObj.isActive ? "active" : ""}
+    >
+      <path
+        d="M137.4 41.4c12.5-12.5 32.8-12.5 45.3 0l128 128c9.2 9.2 11.9 22.9 6.9 34.9s-16.6 19.8-29.6 19.8H32c-12.9 0-24.6-7.8-29.6-19.8s-2.2-25.7 6.9-34.9l128-128zm0 429.3l-128-128c-9.2-9.2-11.9-22.9-6.9-34.9s16.6-19.8 29.6-19.8H288c12.9 0 24.6 7.8 29.6 19.8s2.2 25.7-6.9 34.9l-128 128c-12.5 12.5-32.8 12.5-45.3 0z"
+      ></path></svg
+    >
+    <div x-bind="dialog" class=`menu ${sortObj.isActive ? "active" : ""}`>
+      <p>Trier Par</p>
+      {
+        sortObj.isActive && (
+          <div class="row">
+            <select>
+              {sortObj.columns.map((item) => (
+                <option value={item.column}>{item.name}</option>
+              ))}
+            </select>
+            <select>
+              {sortObj.columns.map((item) =>
+                item.sorts.map((ss) => (
+                  <option value={ss.value}>{ss.value}</option>
+                ))
+              )}
+            </select>
+          </div>
+        )
+      }
+      <button>Ajouter</button>
+    </div>
+  </div>
+  <!-- Hide Icon -->
+  <div x-data="dropdown">
+    <svg
+      x-bind="trigger"
+      xmlns="http://www.w3.org/2000/svg"
+      height="1em"
+      viewBox="0 0 640 512"
+    >
+      <path
+        d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c8.4-19.3 10.6-41.4 4.8-63.3c-11.1-41.5-47.8-69.4-88.6-71.1c-5.8-.2-9.2 6.1-7.4 11.7c2.1 6.4 3.3 13.2 3.3 20.3c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zM373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5L373 389.9z"
+      ></path></svg
+    >
+    <div x-bind="dialog" class="menu">
+      <p>Masquer un champ</p>
+    </div>
+  </div>
+  <div x-data="dropdown">
+    <svg
+      x-bind="trigger"
+      xmlns="http://www.w3.org/2000/svg"
+      height="1em"
+      viewBox="0 0 512 512"
+    >
+      <path
+        d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+      >
+      </path>
+    </svg>
+    <div x-bind="dialog">
+      <ISearch value={search.get("q")} />
+    </div>
+  </div>
+</div>
