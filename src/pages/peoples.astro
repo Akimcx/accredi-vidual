@@ -1,0 +1,241 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ISearch from "../components/ISearch.astro";
+import { supabase } from "../lib/supabase";
+import People from "../components/People.astro";
+import Thead from "../components/Thead.astro";
+import Fuse from "fuse.js";
+
+const search = new URL(Astro.request.url).searchParams;
+
+let query = supabase.from("person").select("*").is("deleted_at", null);
+
+const sortObj = {
+  isActive: false,
+  columns: [
+    {
+      checked: false,
+      column: "last_name",
+      name: "Nom",
+      sorts: [
+        { value: "A -> Z", name: "asc" },
+        { value: "Z -> A", name: "desc" },
+      ],
+    },
+    {
+      checked: false,
+      name: "Prénom",
+      column: "first_name",
+      sorts: [
+        { value: "A -> Z", name: "asc" },
+        { value: "Z -> A", name: "desc" },
+      ],
+    },
+  ],
+};
+
+if (search.has("orderColumn") && search.has("orderDirection")) {
+  sortObj.isActive = true;
+  const orderColumn = search.get("orderColumn");
+  const orderDirection = search.get("orderDirection");
+
+  query = query.order(orderColumn, {
+    ascending: orderDirection.startsWith("asc"),
+  });
+}
+let { data, error } = await query;
+if (error) {
+  return new Response(error.message, { status: 500 });
+}
+const fuse = new Fuse(data, {
+  keys: ["last_name", "first_name"],
+});
+// 44093063;
+if (search.get("q")) {
+  data = fuse.search(search.get("q")).map((s) => s.item);
+}
+
+const theads = ["Nom", "Prénom", "CV", "Dernière MAJ", "Contacter"];
+---
+
+<Layout title="Plateforme des accrédités" , middle="Les accrédités">
+  <main>
+    <ISearch />
+    <p id="load" class="htmx-indicator">
+      <img src="/circles.svg" />
+    </p>
+    <div role="table" id="table">
+      <div class="thead">
+        <ul>
+          {theads.map((item) => <Thead display={item} />)}
+        </ul>
+      </div>
+      <div id="tbody">
+        {data.map((item) => <People person={item} />)}
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1rem;
+    width: 800px;
+    max-width: calc(100% - 2rem);
+    color: white;
+    line-height: 1.6;
+  }
+
+  div[role="table"] {
+    border-collapse: collapse;
+    height: 450px;
+    border-radius: 5px;
+    overflow-y: scroll;
+    box-shadow:
+      0 10px 15px -3px var(--gray-900),
+      0 4px 6px -4px var(--gray-200);
+  }
+
+  div.thead {
+    position: sticky;
+    top: 0px;
+    z-index: 2;
+  }
+
+  p {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    margin: 0;
+    user-select: none;
+    display: grid;
+    place-items: center;
+  }
+  p img {
+    z-index: 100;
+  }
+  p::after {
+    content: "";
+    z-index: 30;
+    position: absolute;
+    inset: 0;
+    background-color: var(--gray-900);
+    opacity: 0.3;
+  }
+
+  .htmx-indicator {
+    display: none;
+  }
+  .htmx-request .htmx-indicator {
+    display: grid;
+  }
+  .htmx-request.htmx-indicator {
+    display: grid;
+  }
+
+  ul {
+    margin: 0;
+    background-color: var(--gray-800);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    padding: 0;
+  }
+
+  h1 {
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 1em;
+  }
+  .link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 2rem;
+    padding: 0;
+  }
+
+  #toolbar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 50px);
+    place-items: center;
+  }
+
+  #toolbar div[x-bind="dialog"] {
+    position: absolute;
+    z-index: 40;
+    user-select: none;
+  }
+
+  #toolbar div[x-data="dropdown"].active {
+    background-color: var(--gray-700);
+  }
+
+  #toolbar .menu {
+    background-color: var(--gray-800);
+    outline: 2px solid var(--gray-500);
+    padding: 1rem;
+  }
+
+  #toolbar p {
+    margin: 0;
+    font-size: initial;
+  }
+
+  #toolbar svg {
+    margin: 0;
+    cursor: pointer;
+    padding: 0.5rem;
+    width: 16px;
+    height: 16px;
+  }
+
+  #toolbar svg:hover {
+    background-color: var(--gray-700);
+    border-radius: 5px;
+  }
+</style>
+
+<script>
+  import Alpine from "alpinejs";
+
+  Alpine.data("dropdown", () => ({
+    open: false,
+
+    trigger: {
+      ["@click"]() {
+        this.open = !this.open;
+      },
+    },
+
+    dialog: {
+      ["x-show"]() {
+        return this.open;
+      },
+      ["@click.outside"]() {
+        this.open = false;
+      },
+    },
+  }));
+
+  Alpine.start();
+  window.addEventListener("DOMContentLoaded", (e) => {
+    const search = document.getElementById("searchItem") as HTMLInputElement;
+    const url = new URL(window.location.href);
+    const searchParam = url.searchParams.get("q");
+    if (searchParam) {
+      search.focus({ focusVisible: true });
+    }
+    let ids: NodeJS.Timeout;
+
+    search.addEventListener("input", (e) => {
+      clearTimeout(ids);
+      ids = setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.set("q", search.value);
+        window.history.pushState(null, "", url);
+      }, 400);
+    });
+  });
+</script>

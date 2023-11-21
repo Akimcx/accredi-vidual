@@ -1,0 +1,101 @@
+---
+import Contact from "./Contact.astro";
+interface Props {
+  person: Person;
+}
+
+type Person = {
+  created_at: string;
+  email: string;
+  first_name: string;
+  full_name: string;
+  id: number;
+  last_name: string;
+  updated_at: string;
+};
+const { person } = Astro.props;
+const fmtUpdated = new Date(person.updated_at);
+const now = new Date().getFullYear();
+const diff = now - fmtUpdated.getFullYear();
+let status = "";
+if (diff > 5) {
+  status = "red";
+} else if (diff >= 4) {
+  status = "orange";
+} else {
+  status = "green";
+}
+---
+
+<ul>
+  <li>{person.last_name}</li>
+  <li>{person.first_name}</li>
+  <li>
+    <a href="/prs.pdf">curriculum vitae</a>
+  </li>
+  <li>
+    <span class={status}>
+      {
+        fmtUpdated.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+      }
+    </span>
+  </li>
+  <li>
+    <Contact mail_link={person.email} phone_number={person.email} />
+  </li>
+
+  <style>
+    ul {
+      background-color: var(--gray-700);
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+    }
+    ul:nth-child(odd) {
+      background-color: var(--gray-600);
+    }
+
+    li {
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
+    }
+
+    li:first-of-type {
+      padding-left: 0.75rem;
+    }
+
+    span {
+      position: relative;
+      z-index: 1;
+      padding-right: 0.5rem;
+      border-right: 1px solid var(--gray-400);
+    }
+
+    span::after {
+      content: "";
+      position: absolute;
+      --size: 10px;
+      width: var(--size);
+      height: var(--size);
+      border-radius: calc(var(--size) * 100);
+      top: 50%;
+      right: -1.2rem;
+      transform: translateY(-50%);
+    }
+
+    span.green::after {
+      background: var(--green-600);
+    }
+    span.orange::after {
+      background: var(--orange-600);
+    }
+    span.red::after {
+      background: var(--red-600);
+    }
+  </style>
+</ul>

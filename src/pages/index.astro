@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Plateforme des acrédités" middle="">
+  <main>
+    <h1>Bienvenue sur la plateforme des acrédités</h1>
+    <small
+      >Une initiative de la <a href="https://cnmp.gouv.ht">CNMP</a> afin de ...</small
+    >
+  </main>
+</Layout>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1rem;
+    width: 800px;
+    max-width: calc(100% - 2rem);
+    line-height: 1.6;
+  }
+
+  a {
+    text-decoration: underline;
+    font-style: italic;
+  }
+
+  h1,
+  small {
+    text-align: center;
+    line-height: 1;
+    letter-spacing: 0.5px;
+  }
+
+  h1 {
+    margin-bottom: 0;
+    color: var(--gray-200);
+  }
+
+  small {
+    display: block;
+    margin-top: 1rem;
+    color: var(--gray-300);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 2rem;
+    padding: 0;
+  }
+</style>

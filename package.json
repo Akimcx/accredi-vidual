@@ -1,0 +1,18 @@
+{
+  "name": "plateform",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.4",
+    "alpinejs": "^3.13.3",
+    "astro": "^3.5.4",
+    "fuse.js": "^7.0.0"
+  }
+}

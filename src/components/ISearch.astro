@@ -1,0 +1,68 @@
+---
+const { value = "" } = Astro.props;
+---
+
+<form>
+  <input
+    type="search"
+    id="searchItem"
+    hx-post="/ssearch"
+    hx-trigger="keyup changed delay:100ms"
+    hx-target="#tbody"
+    hx-indicator="#indicator"
+    hx-select="#tbody"
+    name="search"
+    value={value}
+    required
+    placeholder="Find someone"
+  />
+</form>
+
+<style>
+  form {
+    --color: var(--gray-200);
+    /* position: absolute; */
+    /* background-color: var(--gray-700); */
+    padding: 0.5rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .svg:hover {
+    cursor: pointer;
+    background-color: var(--gray-700);
+  }
+
+  input {
+    border: 1px solid var(--color);
+    background: none;
+    border-radius: 5px;
+    outline: 1px solid var(--color);
+    padding: 0.5em 1rem;
+    color: var(--color);
+    font-size: 1rem;
+    height: 100%;
+  }
+
+  input:focus-visible {
+    outline: 2px solid var(--gray-400);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  const form = document.querySelector("form");
+
+  const search = form.querySelector("input");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    handleSearch();
+  });
+
+  function handleSearch() {
+    const formData = new FormData(form);
+    const url = new URL("/peoples", window.location.origin);
+    url.searchParams.set("q", search.value);
+    window.location.assign(url);
+  }
+</script>
